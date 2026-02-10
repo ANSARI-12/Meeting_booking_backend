@@ -106,33 +106,169 @@ The server will run on `http://localhost:3000`
 - `PUT /meetings/:id` - Update a meeting
 - `DELETE /meetings/:id` - Delete a meeting
 
-### Request/Response Examples
+## Testing the APIs
+
+### 1. Start the Server
+
+In terminal:
+
+```bash
+npm start
+```
+
+You should see:
+
+```
+Database connected successfully
+Server running on port 3000
+```
+
+### 2. Choose a Testing Tool
+
+Use any one:
+
+- Postman (recommended)
+- Thunder Client (VS Code extension)
+- Insomnia
+- cURL (terminal)
+
+### 3. Test User APIs
 
 #### Create User
 
 ```bash
-POST /users
+POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-  "name": "John Doe",
-  "email": "john@example.com"
+  "name": "Sufiyan",
+  "email": "sufiyan@gmail.com"
 }
 ```
 
-#### Create Meeting
+Expected Response (201):
+
+```json
+{
+  "id": 1,
+  "name": "Sufiyan",
+  "email": "sufiyan@gmail.com",
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
+
+#### Get User
 
 ```bash
-POST /meetings
+GET http://localhost:3000/users/1
+```
+
+### 4. Test Meeting APIs
+
+#### Create First Meeting (Valid)
+
+```bash
+POST http://localhost:3000/meetings
 Content-Type: application/json
 
 {
   "userId": 1,
-  "title": "Team Meeting",
-  "startTime": "2023-10-01T10:00:00Z",
-  "endTime": "2023-10-01T11:00:00Z"
+  "title": "Interview",
+  "startTime": "2026-02-10T10:00:00.000Z",
+  "endTime": "2026-02-10T10:30:00.000Z"
 }
 ```
+
+Expected: 201 Created ✅
+
+#### Create Overlapping Meeting (Should Fail)
+
+```bash
+POST http://localhost:3000/meetings
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "title": "Another Meeting",
+  "startTime": "2026-02-10T10:15:00.000Z",
+  "endTime": "2026-02-10T10:45:00.000Z"
+}
+```
+
+Expected Response (400):
+
+```json
+{
+  "message": "Time slot already booked"
+}
+```
+
+#### Create Non-Overlapping Meeting
+
+```bash
+POST http://localhost:3000/meetings
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "title": "Team Sync",
+  "startTime": "2026-02-10T10:30:00.000Z",
+  "endTime": "2026-02-10T11:00:00.000Z"
+}
+```
+
+Should succeed.
+
+### 5. List Meetings
+
+#### Get All Meetings
+
+```bash
+GET http://localhost:3000/meetings
+```
+
+#### Filter by User
+
+```bash
+GET http://localhost:3000/meetings?userId=1
+```
+
+#### Filter by Date Range
+
+```bash
+GET http://localhost:3000/meetings?startTime=2026-02-10T00:00:00.000Z&endTime=2026-02-11T00:00:00.000Z
+```
+
+### 6. Get Meeting by ID
+
+```bash
+GET http://localhost:3000/meetings/1
+```
+
+### 7. Update Meeting
+
+Try to update into conflict:
+
+```bash
+PUT http://localhost:3000/meetings/2
+Content-Type: application/json
+
+{
+  "startTime": "2026-02-10T10:10:00.000Z",
+  "endTime": "2026-02-10T10:40:00.000Z"
+}
+```
+
+Expected: 400 conflict ❌
+
+### 8. Delete Meeting
+
+```bash
+DELETE http://localhost:3000/meetings/1
+```
+
+Expected: 204 No Content
 
 ## Business Rules
 
